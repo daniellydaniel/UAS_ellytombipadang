@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "795443018791",
+    "project_id": "project-freelance-001",
+    "storage_bucket": "project-freelance-001.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:795443018791:android:66a6730fb27ba4ff8e2202",
+        "android_client_info": {
+          "package_name": "com.example.tabitha"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-0G-i3l1fO3CU5Q_9qnbQrsBfs4X6zOg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
