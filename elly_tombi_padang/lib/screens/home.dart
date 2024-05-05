@@ -1,11 +1,18 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:elly/widgets/card.dart';
 import 'package:flutter/material.dart';
-import 'package:elly/widgets/card.dart'; // Sesuaikan dengan nama file Anda
-import 'profile.dart'; // Import file profile_screen.dart
-import 'detail.dart'; // Import file detail.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'profile.dart'; // Import ProfileScreen
+import 'detail.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final Map<String, dynamic> userData;
+  final String userId;
+
+  const HomeScreen({
+    Key? key,
+    required this.userData,
+    required this.userId,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,18 +21,25 @@ class HomeScreen extends StatelessWidget {
         title: const Text(
           'Galeri Otomotif',
           style: TextStyle(
-            color: Colors.white, // Warna teks putih
+            color: Colors.white,
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.black, // Warna hijau tua untuk AppBar
+        backgroundColor: Colors.black,
         leading: Container(),
         actions: [
           IconButton(
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                MaterialPageRoute(
+                  builder: (context) => ProfileScreen(
+                    userData: {
+                      'nama': userData['name'], // Tambahkan nama pengguna
+                      'npm': userData['npm'], // Tambahkan NPM pengguna
+                    },
+                  ),
+                ),
               );
             },
             icon: const CircleAvatar(
@@ -36,8 +50,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      // backgroundColor:
-      //     Colors.greenAccent, // Warna hijau accent untuk latar belakang
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('otomotif').snapshots(),
         builder: (context, snapshot) {
@@ -77,5 +89,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-
-
