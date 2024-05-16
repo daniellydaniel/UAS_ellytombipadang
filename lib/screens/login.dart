@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:elly/screens/forgot_password.dart';
-import 'package:elly/screens/home.dart';
-import 'package:elly/screens/register.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'home.dart'; // Import HomeScreen
+import 'forgot_password.dart';
+import 'register.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -14,8 +14,11 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
+  final TextEditingController _npmController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   late Timer _timer;
   late Alignment _gradientCenter;
+  late String _userId; // Variabel untuk menyimpan ID dokumen pengguna
 
   @override
   void initState() {
@@ -97,6 +100,7 @@ class LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 10),
                   TextField(
+                    controller: _npmController,
                     style: const TextStyle(color: Colors.black),
                     decoration: InputDecoration(
                       filled: true,
@@ -108,7 +112,7 @@ class LoginPageState extends State<LoginPage> {
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      labelText: 'Nama Pengguna',
+                      labelText: 'NPM',
                       labelStyle: const TextStyle(color: Colors.black),
                       contentPadding: const EdgeInsets.symmetric(
                         vertical: 12,
@@ -118,6 +122,7 @@ class LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 10),
                   TextField(
+                    controller: _passwordController,
                     style: const TextStyle(color: Colors.black),
                     obscureText: true,
                     decoration: InputDecoration(
@@ -141,11 +146,18 @@ class LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const HomeScreen()),
-                      );
+                      _login().then((success) {
+                        if (success) {
+                          // Fetch user data and navigate to HomeScreen
+                          _fetchUserDataAndNavigate(_npmController.text.trim());
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Login gagal!'),
+                            ),
+                          );
+                        }
+                      });
                     },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.black,
@@ -180,7 +192,6 @@ class LoginPageState extends State<LoginPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          // Tindakan untuk lupa password
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -202,5 +213,60 @@ class LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  Future<bool> _login() async {
+    try {
+      // Get NPM and password from text fields
+      String npm = _npmController.text.trim();
+      String password = _passwordController.text.trim();
+
+      // Query Firestore to check if the user exists
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await FirebaseFirestore.instance.collection('user').doc(npm).get();
+
+      // If user exists and password matches, save the userId and return true
+      if (snapshot.exists && snapshot.data()!['password'] == password) {
+        _userId = npm;
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Error during login: $e');
+      return false;
+    }
+  }
+
+  void _fetchUserDataAndNavigate(String npm) {
+    FirebaseFirestore.instance
+        .collection('user')
+        .doc(npm)
+        .get()
+        .then((DocumentSnapshot<Map<String, dynamic>> snapshot) {
+      if (snapshot.exists) {
+        Map<String, dynamic> userData = snapshot.data()!;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                HomeScreen(userData: userData, userId: _userId),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Data pengguna tidak ditemukan!'),
+          ),
+        );
+      }
+    }).catchError((error) {
+      print('Error fetching user data: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Terjadi kesalahan saat mengambil data pengguna!'),
+        ),
+      );
+    });
   }
 }

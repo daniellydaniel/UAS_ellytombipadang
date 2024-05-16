@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:elly/firebase_options.dart';e
+import 'package:elly/firebase_options.dart';
 import 'package:elly/screens/login.dart';
 
 void main() async {
@@ -17,7 +17,7 @@ void main() async {
 }
 
 class Main extends StatelessWidget {
-  const Main({super.key});
+  const Main({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class Main extends StatelessWidget {
 }
 
 class LoginPageWithBackground extends StatelessWidget {
-  const LoginPageWithBackground({super.key});
+  const LoginPageWithBackground({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

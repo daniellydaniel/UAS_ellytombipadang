@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -11,6 +12,11 @@ class RegisterPage extends StatefulWidget {
 }
 
 class RegisterPageState extends State<RegisterPage> {
+  final CollectionReference _userCollection =
+      FirebaseFirestore.instance.collection('user');
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _npmController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   late Timer _timer;
   late Alignment _gradientCenter;
 
@@ -37,6 +43,79 @@ class RegisterPageState extends State<RegisterPage> {
         );
       });
     });
+  }
+
+  Future<void> _register() async {
+    try {
+      // Get user input data
+      String name = _nameController.text.trim();
+      String npm = _npmController.text
+          .trim()
+          .toLowerCase(); // Gunakan sebagai ID document
+      String password = _passwordController.text.trim();
+
+      // Validasi input
+      if (name.isEmpty || npm.isEmpty || password.isEmpty) {
+        throw "Semua kolom harus diisi";
+      }
+
+      // Periksa apakah NPM sudah digunakan sebelumnya
+      DocumentSnapshot<Object?> userSnapshot =
+          await _userCollection.doc(npm).get();
+      if (userSnapshot.exists) {
+        throw "NPM sudah digunakan";
+      }
+
+      // Simpan user data to Firestore dengan menggunakan npm sebagai ID document
+      await _userCollection.doc(npm).set({
+        'name': name,
+        'npm': npm,
+        'password': password,
+      });
+
+      // Show success pop-up message
+      // ignore: use_build_context_synchronously
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Berhasil'),
+            content: const Text('Registrasi berhasil!'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (error) {
+      print("Registration failed: $error");
+
+      // Show error message
+      // ignore: use_build_context_synchronously
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Gagal'),
+            content: Text(error.toString()),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -95,6 +174,7 @@ class RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 10),
                     TextField(
+                      controller: _nameController,
                       style: const TextStyle(color: Colors.black),
                       decoration: InputDecoration(
                         filled: true,
@@ -116,6 +196,7 @@ class RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 10),
                     TextField(
+                      controller: _npmController,
                       style: const TextStyle(color: Colors.black),
                       decoration: InputDecoration(
                         filled: true,
@@ -137,27 +218,7 @@ class RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 10),
                     TextField(
-                      style: const TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: const OutlineInputBorder(),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Colors.black,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        labelText: 'Nama Pengguna',
-                        labelStyle: const TextStyle(color: Colors.black),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 10,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
+                      controller: _passwordController,
                       style: const TextStyle(color: Colors.black),
                       obscureText: true,
                       decoration: InputDecoration(
@@ -180,9 +241,7 @@ class RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 10),
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      onPressed: _register,
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.black,
                         backgroundColor: Colors.grey,

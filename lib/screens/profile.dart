@@ -4,14 +4,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  final Map<String, dynamic> userData;
+
+  const ProfileScreen({Key? key, required this.userData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
-        centerTitle: true, // Membuat judul di tengah AppBar
+        centerTitle: true,
       ),
       body: Center(
         child: Column(
@@ -19,18 +21,18 @@ class ProfileScreen extends StatelessWidget {
           children: [
             const CircleAvatar(
               radius: 50,
-              backgroundImage: NetworkImage(
-                  'https://source.unsplash.com/random/?male'), // Ganti dengan path gambar profil Anda
+              backgroundImage:
+                  NetworkImage('https://source.unsplash.com/random/?male'),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Elly Tombi Padang',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Text(
+              'Nama: ${userData['nama']}',
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            const Text(
-              'NPM: 18411060',
-              style: TextStyle(fontSize: 16),
+            Text(
+              'NPM: ${userData['npm']}',
+              style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 5),
             const Text(
@@ -59,14 +61,14 @@ class ProfileScreen extends StatelessWidget {
                       actions: <Widget>[
                         TextButton(
                           onPressed: () {
-                            Navigator.of(context).pop(); // Tutup dialog
+                            Navigator.of(context).pop();
                           },
                           child: const Text('Tidak'),
                         ),
                         TextButton(
                           onPressed: () {
-                            Navigator.pop(context); // Tutup dialog
-                            exit(0); // Keluar dari aplikasi
+                            Navigator.pop(context);
+                            exit(0);
                           },
                           child: const Text('Ya'),
                         ),
