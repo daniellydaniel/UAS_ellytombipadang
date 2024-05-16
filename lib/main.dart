@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:elly/firebase_options.dart';
+import 'package:elly/firebase_options.dart';e
 import 'package:elly/screens/login.dart';
 
 void main() async {
